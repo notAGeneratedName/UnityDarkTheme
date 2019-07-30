@@ -3660,6 +3660,8 @@ MonoBehaviour:
       m_Image: {fileID: 0}
     - m_Text: 2019.1
       m_Image: {fileID: 0}
+    - m_Text: 2019.2
+      m_Image: {fileID: 0}
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -4667,7 +4669,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_text: 'Select Last Version
+  m_text: 'Latest Version
 
 '
   m_isRightToLeft: 0
@@ -4738,10 +4740,10 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_textInfo:
     textComponent: {fileID: 1090814618}
-    characterCount: 20
+    characterCount: 15
     spriteCount: 0
-    spaceCount: 3
-    wordCount: 3
+    spaceCount: 2
+    wordCount: 2
     linkCount: 0
     lineCount: 1
     pageCount: 1
@@ -6697,7 +6699,7 @@ MonoBehaviour:
   _unpatchSuccessMessage: UNPATCH SUCCESSFUL
   _unpatchFailureMessage: UNPATCH FAILED
   _emptyPathMessage: PATH EMPTY
-  _outComeTimer: 2
+  _outComeTimer: 1
   _patchButton: {fileID: 1104290361}
   _unpatchButton: {fileID: 330081535}
   _unityVersionPrefab: {fileID: 5888048950254096572, guid: 740b30b1b689b244a9236918ebaa33d1,
@@ -7770,7 +7772,7 @@ GameObject:
   - component: {fileID: 1900189870}
   - component: {fileID: 1900189869}
   m_Layer: 5
-  m_Name: LastIcon
+  m_Name: LatestIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8345,7 +8347,7 @@ GameObject:
   - component: {fileID: 2096004319}
   - component: {fileID: 2096004322}
   m_Layer: 5
-  m_Name: LastVersionButton
+  m_Name: LatestVersionButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8370,7 +8372,7 @@ RectTransform:
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: -10, y: -10}
-  m_SizeDelta: {x: 300, y: 50}
+  m_SizeDelta: {x: 250, y: 50}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &2096004319
 MonoBehaviour:

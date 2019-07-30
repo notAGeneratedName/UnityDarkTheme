@@ -24,7 +24,8 @@ public enum Version : byte
 {
     Lower_2018_3,
     Equal_2018_3,
-    Equal_2019_1
+    Equal_2019_1,
+    Equal_2019_2
 }
 
 public class UnityDarkTheme : MonoBehaviour
@@ -86,6 +87,12 @@ public class UnityDarkTheme : MonoBehaviour
         {
             0x84, 0xDB, 0x74, 0x04, 0x33, 0xC0, 0xEB, 0x02, 0x8B, 0x07, 0x4C, 0x8D, 0x5C, 0x24, 0x70
         },
+        // 2019.2:
+        // 75 15 33 C0 EB 13 90
+        new byte[]
+        {
+            0x75, 0x15, 0x33, 0xC0, 0xEB, 0x13, 0x90
+        },
     };
 
     private readonly byte[][] m_unpatchPatterns =
@@ -108,6 +115,12 @@ public class UnityDarkTheme : MonoBehaviour
         {
             0x84, 0xDB, 0x75, 0x04, 0x33, 0xC0, 0xEB, 0x02, 0x8B, 0x07, 0x4C, 0x8D, 0x5C, 0x24, 0x70
         },
+        // 2019.2:
+        // 74 15 33 C0 EB 13 90
+        new byte[]
+        {
+            0x74, 0x15, 0x33, 0xC0, 0xEB, 0x13, 0x90
+        },
     };
 
     private readonly byte[] m_patchIndexes =
@@ -118,6 +131,8 @@ public class UnityDarkTheme : MonoBehaviour
         2,
         // 2019.1:
         2,
+        // 2019.2:
+        0,
     };
 
     private readonly byte[] m_unpatchIndexes =
@@ -128,6 +143,8 @@ public class UnityDarkTheme : MonoBehaviour
         2,
         // 2019.1:
         2,
+        // 2019.2:
+        0,
     };
 
     private readonly byte[] m_patchValues =
@@ -138,6 +155,8 @@ public class UnityDarkTheme : MonoBehaviour
         0x74,
         // 2019.1:
         0x75,
+        // 2019.2:
+        0x74,
     };
 
     private readonly byte[] m_unpatchValues =
@@ -148,6 +167,8 @@ public class UnityDarkTheme : MonoBehaviour
         0x75,
         // 2019.1:
         0x74,
+        // 2019.2:
+        0x75,
     };
 
     #endregion /Patterns
@@ -182,6 +203,7 @@ public class UnityDarkTheme : MonoBehaviour
                 var versionName = directory.Name;
                 var nameArray = versionName.Split('.', 'a', 'b', 'f');
                 var year = int.Parse(nameArray[0]);
+                var major = byte.Parse(nameArray[1]);
                 var editorDir = directory.GetDirectories("Editor").FirstOrDefault(t => t.Name == "Editor");
                 var unityExe = editorDir?.GetFiles("Unity.exe").FirstOrDefault(f => f.Name == "Unity.exe");
                 if (unityExe == null) continue;
@@ -189,10 +211,13 @@ public class UnityDarkTheme : MonoBehaviour
                 Version version;
                 switch (year)
                 {
-                    case 2019:
+                    case 2019 when major == 2:
+                        version = Version.Equal_2019_2;
+                        break;
+                    case 2019 when major == 1:
                         version = Version.Equal_2019_1;
                         break;
-                    case 2018 when m_majorVersion == 3:
+                    case 2018 when major == 3:
                         version = Version.Equal_2018_3;
                         break;
                     default:
@@ -208,13 +233,13 @@ public class UnityDarkTheme : MonoBehaviour
 
                 bool patched;
 
-#if !UNITY_EDITOR
+//#if !UNITY_EDITOR
                 if (IsUnpatchable(path, version)) patched = true;
                 else if (IsPatchable(path, version)) patched = false;
                 else continue;
-#else
-                patched = false;
-#endif
+//#else
+//                patched = false;
+//#endif
 
                 var versionSelector = Instantiate(_unityVersionPrefab, _scrollViewContent);
                 versionSelector.Init(patched, version, versionName, unityExe.FullName, _group, this);
@@ -262,7 +287,9 @@ public class UnityDarkTheme : MonoBehaviour
                 var major = byte.Parse(nameArray[1]);
                 var minor = byte.Parse(nameArray[2]);
                 var patch = byte.Parse(nameArray[3]);
-                if (year < m_year || major < m_majorVersion || minor < m_minorVersion || patch < m_patch && i != 0) continue;
+                
+                if (i != 0 && year <= m_year && major <= m_majorVersion && minor <= m_minorVersion && patch < m_patch) continue;
+
                 lastVersionDir = directory;
                 m_year = year;
                 m_majorVersion = major;
@@ -275,7 +302,10 @@ public class UnityDarkTheme : MonoBehaviour
             if (unityExe == null) return;
             switch (m_year)
             {
-                case 2019:
+                case 2019 when m_majorVersion == 2:
+                    _versionDropdown.value = (int) Version.Equal_2019_2;
+                    break;
+                case 2019 when m_majorVersion == 1:
                     _versionDropdown.value = (int) Version.Equal_2019_1;
                     break;
                 case 2018 when m_majorVersion == 3:
