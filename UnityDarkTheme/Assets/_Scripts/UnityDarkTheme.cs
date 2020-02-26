@@ -25,7 +25,7 @@ public enum Version : byte
     Lower_2018_3,
     Equal_2018_3,
     Equal_2019_1,
-    Superior_2019_1
+    Equal_2019_2_3
 }
 
 public class UnityDarkTheme : MonoBehaviour
@@ -67,7 +67,7 @@ public class UnityDarkTheme : MonoBehaviour
 
     #region Patterns
 
-    private readonly byte[][] m_patchPatterns =
+    private static readonly byte[][] PatchPatterns =
     {
         // < 2018.3:
         // 84 C0 75 08 33 C0 48 83 C4 20 5B C3 8B 03 48 83 C4 20 5B C3
@@ -95,7 +95,7 @@ public class UnityDarkTheme : MonoBehaviour
         },
     };
 
-    private readonly byte[][] m_unpatchPatterns =
+    private static readonly byte[][] UnpatchPatterns =
     {
         // < 2018.3:
         // 84 C0 74 08 33 C0 48 83 C4 20 5B C3 8B 03 48 83 C4 20 5B C3
@@ -123,7 +123,7 @@ public class UnityDarkTheme : MonoBehaviour
         },
     };
 
-    private readonly byte[] m_patchIndexes =
+    private static readonly byte[] PatchIndexes =
     {
         // < 2018.3
         2,
@@ -135,7 +135,7 @@ public class UnityDarkTheme : MonoBehaviour
         0,
     };
 
-    private readonly byte[] m_unpatchIndexes =
+    private static readonly byte[] UnpatchIndexes =
     {
         // < 2018.3
         2,
@@ -147,7 +147,7 @@ public class UnityDarkTheme : MonoBehaviour
         0,
     };
 
-    private readonly byte[] m_patchValues =
+    private static readonly byte[] PatchValues =
     {
         // < 2018.3
         0x74,
@@ -159,7 +159,7 @@ public class UnityDarkTheme : MonoBehaviour
         0x74,
     };
 
-    private readonly byte[] m_unpatchValues =
+    private static readonly byte[] UnpatchValues =
     {
         // < 2018.3
         0x75,
@@ -179,7 +179,9 @@ public class UnityDarkTheme : MonoBehaviour
         m_waitForOutcome = new WaitForSeconds(_outComeTimer);
         var resolutionVector = _canvasScaler.referenceResolution * _sizeFactor;
         Screen.SetResolution((int) resolutionVector.x, (int) resolutionVector.y, false);
+#if !UNITY_EDITOR
         BorderlessWindow.MoveWindowPos(Vector2Int.zero, (int) resolutionVector.x, (int) resolutionVector.y);
+#endif
 
         var versionsFound = ListAllVersions();
         SetButtonsInteractables(!versionsFound);
@@ -213,7 +215,7 @@ public class UnityDarkTheme : MonoBehaviour
                 switch (year)
                 {
                     case 2019 when major > 1:
-                        version = Version.Superior_2019_1;
+                        version = Version.Equal_2019_2_3;
                         break;
                     case 2019 when major == 1:
                         version = Version.Equal_2019_1;
@@ -223,10 +225,8 @@ public class UnityDarkTheme : MonoBehaviour
                         break;
                     default:
                     {
-                        if (m_year <= 2018)
+                        if (year <= 2018)
                             version = Version.Lower_2018_3;
-                        else if (m_year > 2019)
-                            version = Version.Superior_2019_1;
                         else continue;
                         break;
                     }
@@ -275,6 +275,8 @@ public class UnityDarkTheme : MonoBehaviour
 
     public void SetButtonsInteractables(bool interactable) => _patchButton.interactable = _unpatchButton.interactable = interactable;
 
+    public void OnClickRefreshList() => ListAllVersions();
+
     public void OnClickLastVersionButton()
     {
         try
@@ -306,7 +308,7 @@ public class UnityDarkTheme : MonoBehaviour
             switch (m_year)
             {
                 case 2019 when m_majorVersion >= 2:
-                    _versionDropdown.value = (int) Version.Superior_2019_1;
+                    _versionDropdown.value = (int) Version.Equal_2019_2_3;
                     break;
                 case 2019 when m_majorVersion == 1:
                     _versionDropdown.value = (int) Version.Equal_2019_1;
@@ -389,20 +391,20 @@ public class UnityDarkTheme : MonoBehaviour
     private string[] GetInputFieldValue() => _filePathInput.text.Split(new[] {',', '"'}, StringSplitOptions.RemoveEmptyEntries);
 
     private bool IsPatchable(string path, Version version) =>
-        ReadFile(path, out var data, out var length) && SearchPattern(data, m_patchPatterns[(int) version], length) > 0;
+        ReadFile(path, out var data, out var length) && SearchPattern(data, PatchPatterns[(int) version], length) > 0;
 
     private bool IsUnpatchable(string path, Version version) =>
-        ReadFile(path, out var data, out var length) && SearchPattern(data, m_unpatchPatterns[(int) version], length) > 0;
+        ReadFile(path, out var data, out var length) && SearchPattern(data, UnpatchPatterns[(int) version], length) > 0;
 
     private bool PatchFile(string path) =>
         ReadFile(path, out var data, out var length) &&
-        UpdateFileData(ref data, m_patchPatterns[(int) m_version], m_patchValues[(int) m_version],
-            m_patchIndexes[(int) m_version], length) && WriteFile(path, data, length);
+        UpdateFileData(ref data, PatchPatterns[(int) m_version], PatchValues[(int) m_version],
+            PatchIndexes[(int) m_version], length) && WriteFile(path, data, length);
 
     private bool UnpatchFile(string path) =>
         ReadFile(path, out var data, out var length) &&
-        UpdateFileData(ref data, m_unpatchPatterns[(int) m_version], m_unpatchValues[(int) m_version],
-            m_unpatchIndexes[(int) m_version], length) && WriteFile(path, data, length);
+        UpdateFileData(ref data, UnpatchPatterns[(int) m_version], UnpatchValues[(int) m_version],
+            UnpatchIndexes[(int) m_version], length) && WriteFile(path, data, length);
 
     private static bool ReadFile(string path, out byte[] data, out int length)
     {
